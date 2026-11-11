@@ -91,6 +91,9 @@
     draft: null,
     draftUrl: null,
     nameTouched: false,
+    colorOpen: true,
+    seasonsTouched: false,
+    occTouched: false,
     editing: false,
     pendingConfirm: null,
     installPrompt: null
@@ -455,6 +458,9 @@
     S.draft = newDraft();
     S.editing = false;
     S.nameTouched = false;
+    S.colorOpen = true;
+    S.seasonsTouched = false;
+    S.occTouched = false;
     if (typeof preset === 'string' && C.cat(preset)) S.draft.category = preset;
     if (preset && typeof preset === 'object') {
       if (preset.category && C.cat(preset.category)) S.draft.category = preset.category;
@@ -476,6 +482,9 @@
     });
     S.editing = true;
     S.nameTouched = true;
+    S.colorOpen = false;
+    S.seasonsTouched = true;
+    S.occTouched = true;
     renderAddForm();
     $('#addScreen').hidden = false;
     $('#addScreen').scrollTop = 0;
@@ -536,6 +545,31 @@
       picked.textContent = 'Sin color elegido';
     }
     if (S.draft.color) $('#customColor').value = S.draft.color.hex;
+
+    var hasColor = !!S.draft.color;
+    var showSummary = hasColor && !S.colorOpen;
+    $('#colorSummary').hidden = !showSummary;
+    $('#colorEditor').hidden = showSummary;
+    if (hasColor) {
+      $('#colorSummaryDot').style.background = S.draft.color.hex;
+      $('#colorSummaryName').textContent = S.draft.color.name;
+      $('#colorSummaryHint').textContent = S.draft.photo ? 'detectado de la foto' : 'elegido por vos';
+    }
+  }
+
+  function autoTagIfNeeded() {
+    var d = S.draft;
+    if (!d || !d.category) return;
+    var cat = C.cat(d.category);
+    if (!cat) return;
+    if (!S.seasonsTouched) {
+      d.seasons = [cat.slot === 'acc' ? 'todo' : C.seasonByWarmth(cat.warmth)];
+      renderSeasonChoices();
+    }
+    if (!S.occTouched) {
+      d.occasions = [cat.formality >= 3.2 ? 'salir' : 'casual'];
+      renderOccasionChoices();
+    }
   }
 
   function renderCatGrid() {
@@ -574,7 +608,10 @@
     renderColorChoices();
     renderSeasonChoices();
     renderOccasionChoices();
-    if (d.category) autoNameIfNeeded();
+    if (d.category) {
+      autoNameIfNeeded();
+      autoTagIfNeeded();
+    }
   }
 
   function autoNameIfNeeded() {
@@ -1018,18 +1055,27 @@
         S.draft.category = el.getAttribute('data-cat');
         renderCatGrid();
         autoNameIfNeeded();
+        autoTagIfNeeded();
         break;
       case 'pick-color': {
         var hex = el.getAttribute('data-hex');
         S.draft.color = CU.colorInfo(hex);
         if (!S.draft.palette || !S.draft.palette.length) S.draft.palette = [hex];
+        S.colorOpen = false;
         renderPalette();
         renderColorChoices();
         autoNameIfNeeded();
         break;
       }
+      case 'edit-color':
+        S.colorOpen = true;
+        renderColorChoices();
+        var colorRowEl = $('#colorRow');
+        if (colorRowEl) colorRowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        break;
       case 'toggle-season': {
         var sid = el.getAttribute('data-season');
+        S.seasonsTouched = true;
         var i = S.draft.seasons.indexOf(sid);
         if (i >= 0) S.draft.seasons.splice(i, 1); else S.draft.seasons.push(sid);
         renderSeasonChoices();
@@ -1037,6 +1083,7 @@
       }
       case 'toggle-occasion': {
         var oid = el.getAttribute('data-occ');
+        S.occTouched = true;
         var j = S.draft.occasions.indexOf(oid);
         if (j >= 0) S.draft.occasions.splice(j, 1); else S.draft.occasions.push(oid);
         renderOccasionChoices();
@@ -1124,6 +1171,7 @@
       if (!S.draft) return;
       S.draft.color = CU.colorInfo(t.value);
       if (!S.draft.palette || !S.draft.palette.length) S.draft.palette = [t.value];
+      S.colorOpen = true;
       renderPalette();
       renderColorChoices();
       autoNameIfNeeded();
@@ -1162,11 +1210,12 @@
       S.draft.photo = res.blob;
       S.draft.palette = res.palette.slice();
       if (res.palette.length) S.draft.color = CU.colorInfo(res.palette[0]);
+      S.colorOpen = false;
       renderPhoto();
       renderPalette();
       renderColorChoices();
       autoNameIfNeeded();
-      toast('Foto lista. Revisá el color.');
+      toast('Foto lista. Detectamos el color.');
     } catch (err) {
       toast(err.message || 'No pudimos procesar la foto.');
     }
