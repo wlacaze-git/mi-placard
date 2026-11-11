@@ -196,12 +196,22 @@
 
     <div class="field">
       <span>Color</span>
-      <div class="swatches" id="colorRow"></div>
-      <div class="color-picked" id="colorPicked">Sin color elegido</div>
-      <label class="custom-color">
-        <input type="color" id="customColor" value="#4F7A4A">
-        <span>Otro color</span>
-      </label>
+      <div class="color-summary" id="colorSummary" hidden>
+        <span class="color-dot-lg" id="colorSummaryDot"></span>
+        <div class="color-summary-text">
+          <strong id="colorSummaryName">Verde</strong>
+          <small id="colorSummaryHint">detectado de la foto</small>
+        </div>
+        <button type="button" class="link-btn" data-action="edit-color">Cambiar</button>
+      </div>
+      <div id="colorEditor">
+        <div class="swatches" id="colorRow"></div>
+        <div class="color-picked" id="colorPicked">Sin color elegido</div>
+        <label class="custom-color">
+          <input type="color" id="customColor" value="#4F7A4A">
+          <span>Otro color</span>
+        </label>
+      </div>
     </div>
 
     <div class="field">

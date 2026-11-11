@@ -1,5 +1,5 @@
 /* Service worker de Mi Placard: la app abre aunque no haya internet. */
-var VERSION = 'mi-placard-v2';
+var VERSION = 'mi-placard-v3';
 var ASSETS = [
   './',
   './index.html',
