@@ -94,6 +94,9 @@
     colorOpen: true,
     seasonsTouched: false,
     occTouched: false,
+    categoryAuto: false,
+    aiRunId: 0,
+    aiBusy: false,
     editing: false,
     pendingConfirm: null,
     installPrompt: null
@@ -461,6 +464,11 @@
     S.colorOpen = true;
     S.seasonsTouched = false;
     S.occTouched = false;
+    S.categoryAuto = false;
+    S.aiRunId++;
+    S.aiBusy = false;
+    hideAiStatus();
+    showAiHint('');
     if (typeof preset === 'string' && C.cat(preset)) S.draft.category = preset;
     if (preset && typeof preset === 'object') {
       if (preset.category && C.cat(preset.category)) S.draft.category = preset.category;
@@ -485,6 +493,11 @@
     S.colorOpen = false;
     S.seasonsTouched = true;
     S.occTouched = true;
+    S.categoryAuto = false;
+    S.aiRunId++;
+    S.aiBusy = false;
+    hideAiStatus();
+    showAiHint('');
     renderAddForm();
     $('#addScreen').hidden = false;
     $('#addScreen').scrollTop = 0;
@@ -493,6 +506,9 @@
 
   function closeAdd() {
     $('#addScreen').hidden = true;
+    S.aiRunId++;
+    S.aiBusy = false;
+    hideAiStatus();
     if (S.draftUrl) { URL.revokeObjectURL(S.draftUrl); S.draftUrl = null; }
     S.draft = null;
     if ($('#sheetRoot').hidden) document.body.classList.remove('locked');
@@ -570,6 +586,130 @@
       d.occasions = [cat.formality >= 3.2 ? 'salir' : 'casual'];
       renderOccasionChoices();
     }
+  }
+
+  // ---------- reconocimiento automático de categoría ----------
+  function aiEnabled() {
+    try { return localStorage.getItem('mp.ai') !== '0'; } catch (err) { return true; }
+  }
+
+  function setAiEnabled(on) {
+    try {
+      localStorage.setItem('mp.ai', on ? '1' : '0');
+      localStorage.setItem('mp.aiNotice', '1');
+    } catch (err) { /* noop */ }
+  }
+
+  function aiNoticeSeen() {
+    try { return localStorage.getItem('mp.aiNotice') === '1'; } catch (err) { return false; }
+  }
+
+  function showAiStatus(title, sub) {
+    var el = $('#aiStatus');
+    if (!el) return;
+    el.hidden = false;
+    $('#aiStatusTitle').textContent = title;
+    $('#aiStatusSub').textContent = sub || '';
+  }
+
+  function hideAiStatus() {
+    var el = $('#aiStatus');
+    if (el) el.hidden = true;
+  }
+
+  function showAiHint(text) {
+    var el = $('#aiHint');
+    if (!el) return;
+    el.textContent = text || '';
+    el.hidden = !text;
+  }
+
+  function maybeStartAI() {
+    var d = S.draft;
+    if (!d || !d.photo || !S.draftUrl || !window.Vision) return;
+    if (!aiEnabled()) return;
+
+    if (!aiNoticeSeen()) {
+      askConfirm(
+        'Reconocer la prenda automáticamente',
+        'La primera vez se baja un modelo de 30 MB. Después queda guardado en el celular, funciona sin internet y la foto no sale de acá.',
+        'Sí, activar'
+      ).then(function (ok) {
+        if (!S.draft) return;
+        if (!ok) {
+          setAiEnabled(false);
+          showAiHint('Reconocimiento desactivado. Elegí la categoría o activalo en Ajustes.');
+          return;
+        }
+        setAiEnabled(true);
+        startAI();
+      });
+      return;
+    }
+    startAI();
+  }
+
+  function startAI() {
+    var d = S.draft;
+    if (!d || !d.photo || !S.draftUrl || !window.Vision) return;
+    var runId = ++S.aiRunId;
+    var draftId = d.id;
+    S.aiBusy = true;
+    showAiStatus('Preparando el reconocimiento…', 'La primera vez baja el modelo (~30 MB)');
+
+    Vision.classify(S.draftUrl, function (p) {
+      if (runId !== S.aiRunId) return;
+      if (p.status === 'progress' && p.progress && /\.onnx$/i.test(p.file || '')) {
+        showAiStatus('Bajando el modelo… ' + Math.round(p.progress) + '%', 'Solo la primera vez (~30 MB)');
+      } else if (p.status === 'done' && /\.onnx$/i.test(p.file || '')) {
+        showAiStatus('Reconociendo la prenda…', 'Un segundo…');
+      }
+    }).then(function (res) {
+      if (runId !== S.aiRunId || !S.draft || S.draft.id !== draftId) return;
+      S.aiBusy = false;
+      hideAiStatus();
+      if (!res || !res.best) {
+        showAiHint('No pude reconocerla. Elegí la categoría.');
+        return;
+      }
+      if (!S.draft.category || S.categoryAuto) {
+        S.draft.category = res.best.category;
+        S.categoryAuto = true;
+        renderCatGrid();
+        autoNameIfNeeded();
+        autoTagIfNeeded();
+        showAiHint('Detectamos ' + catLabel(res.best.category) + '. Cambiala si no es.');
+        toast('Detectamos ' + catLabel(res.best.category) + '.');
+      } else {
+        showAiHint('La IA hubiera dicho ' + catLabel(res.best.category) + '.');
+      }
+    }).catch(function (err) {
+      if (runId !== S.aiRunId) return;
+      S.aiBusy = false;
+      hideAiStatus();
+      showAiHint(navigator.onLine === false
+        ? 'Sin conexión: elegí la categoría.'
+        : 'No pude reconocerla. Elegí la categoría.');
+    });
+  }
+
+  function cancelAI() {
+    S.aiRunId++;
+    S.aiBusy = false;
+    hideAiStatus();
+    showAiHint('Elegí la categoría.');
+  }
+
+  function toggleAI() {
+    var on = aiEnabled();
+    setAiEnabled(!on);
+    if (on) {
+      S.aiRunId++;
+      S.aiBusy = false;
+      hideAiStatus();
+    }
+    openSettings();
+    toast(on ? 'Reconocimiento desactivado' : 'Reconocimiento activado');
   }
 
   function renderCatGrid() {
@@ -876,6 +1016,8 @@
       '<button class="btn ghost small" data-action="export">Exportar</button></div>' +
       '<div class="setting-row"><div><strong>Importar backup</strong><small>Reemplaza lo que tenés ahora.</small></div>' +
       '<button class="btn ghost small" data-action="import">Elegir archivo</button></div>' +
+      '<div class="setting-row"><div><strong>Reconocer prendas</strong><small>Detecta la categoría con IA en el celular. La primera vez baja ~30 MB.</small></div>' +
+      '<button class="btn ghost small" data-action="toggle-ai">' + (aiEnabled() ? 'Activado' : 'Desactivado') + '</button></div>' +
       '<div class="setting-row"><div><strong>Placard de ejemplo</strong><small>26 prendas y un look para probar.</small></div>' +
       '<button class="btn ghost small" data-action="demo">Cargar</button></div>' +
       (S.installPrompt ? '<div class="setting-row"><div><strong>Instalar la app</strong><small>Agregala a tu pantalla de inicio.</small></div><button class="btn ghost small" data-action="install">Instalar</button></div>' : '') +
@@ -1053,6 +1195,11 @@
       case 'pick-photo': $('#photoInput').click(); break;
       case 'pick-cat':
         S.draft.category = el.getAttribute('data-cat');
+        S.categoryAuto = false;
+        S.aiRunId++;
+        S.aiBusy = false;
+        hideAiStatus();
+        showAiHint('');
         renderCatGrid();
         autoNameIfNeeded();
         autoTagIfNeeded();
@@ -1128,6 +1275,8 @@
         openAdd(SLOT_PRESET[slot] || null);
         break;
       }
+      case 'cancel-ai': cancelAI(); break;
+      case 'toggle-ai': toggleAI(); break;
       case 'wear-saved': wearSavedLook(id); break;
       case 'delete-look': deleteLook(id); break;
       case 'go-style': go('style'); break;
@@ -1216,6 +1365,7 @@
       renderColorChoices();
       autoNameIfNeeded();
       toast('Foto lista. Detectamos el color.');
+      maybeStartAI();
     } catch (err) {
       toast(err.message || 'No pudimos procesar la foto.');
     }

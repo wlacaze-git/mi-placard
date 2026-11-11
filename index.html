@@ -191,7 +191,16 @@
 
     <div class="field">
       <span>Categoría</span>
+      <div class="ai-status" id="aiStatus" hidden>
+        <span class="ai-spinner" aria-hidden="true"></span>
+        <div class="ai-status-text">
+          <strong id="aiStatusTitle">Reconociendo la prenda…</strong>
+          <small id="aiStatusSub">La primera vez baja un modelo de 30 MB</small>
+        </div>
+        <button type="button" class="link-btn" data-action="cancel-ai">Cancelar</button>
+      </div>
       <div class="catgrid" id="catGrid" role="radiogroup" aria-label="Categoría"></div>
+      <p class="ai-hint" id="aiHint" hidden></p>
     </div>
 
     <div class="field">
@@ -252,6 +261,7 @@
 <script src="js/photo.js"></script>
 <script src="js/sample.js"></script>
 <script src="js/recommend.js"></script>
+<script src="js/vision.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

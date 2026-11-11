@@ -1,5 +1,5 @@
 /* Service worker de Mi Placard: la app abre aunque no haya internet. */
-var VERSION = 'mi-placard-v3';
+var VERSION = 'mi-placard-v4';
 var ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ var ASSETS = [
   './js/photo.js',
   './js/sample.js',
   './js/recommend.js',
+  './js/vision.js',
   './js/app.js',
   './icons/icon-192.png',
   './icons/icon-512.png',
@@ -42,7 +43,14 @@ self.addEventListener('fetch', function (event) {
 
   var url;
   try { url = new URL(request.url); } catch (err) { return; }
-  if (url.origin !== self.location.origin) return;
+
+  // La librería de reconocimiento vive en un CDN: se cachea para poder usarla offline.
+  if (url.origin !== self.location.origin) {
+    if (url.hostname === 'cdn.jsdelivr.net') {
+      event.respondWith(cacheFirst(request));
+    }
+    return;
+  }
 
   // Navegación: red primero, cache como respaldo.
   if (request.mode === 'navigate') {
@@ -61,16 +69,18 @@ self.addEventListener('fetch', function (event) {
   }
 
   // Archivos propios: cache primero, y se actualiza en segundo plano.
-  event.respondWith(
-    caches.match(request).then(function (hit) {
-      if (hit) return hit;
-      return fetch(request).then(function (response) {
-        if (response && response.ok) {
-          var copy = response.clone();
-          caches.open(VERSION).then(function (cache) { cache.put(request, copy); });
-        }
-        return response;
-      });
-    })
-  );
+  event.respondWith(cacheFirst(request));
 });
+
+function cacheFirst(request) {
+  return caches.match(request).then(function (hit) {
+    if (hit) return hit;
+    return fetch(request).then(function (response) {
+      if (response && (response.ok || response.type === 'opaque')) {
+        var copy = response.clone();
+        caches.open(VERSION).then(function (cache) { cache.put(request, copy); });
+      }
+      return response;
+    });
+  });
+}
