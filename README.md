@@ -25,10 +25,10 @@ Las fotos y los datos se guardan **solo en el dispositivo**, en IndexedDB. No ha
 
 ## Desarrollo
 
-Es una app estática, sin build: `index.html`, `styles.css` y `js/*.js`.
+Es una app estática, sin build: `index.html`, `styles.css` y `js/*.js`. Se puede servir con cualquier servidor estático, por ejemplo:
 
 ```bash
-node tools/serve.mjs 4180
+npx serve .
 ```
 
-Las pruebas están en `test/logic.mjs` (lógica) y `tools/shoot.mjs` (interfaz con Chrome).
+El código fuente completo y las pruebas viven en el proyecto local (esta publicación es el build de `dist`).
