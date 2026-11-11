@@ -7,6 +7,7 @@ App web instalable (PWA) para gestionar el guardarropa y pedir looks con la ropa
 ## Qué hace
 
 - Cargar prendas con foto (se comprime y detecta el color sola).
+- **Reconocer la categoría con IA en el celular** (remera, jean, zapatillas, vestido…). La primera vez baja ~30 MB y después queda guardado; se puede desactivar en Ajustes.
 - Ver el placard agrupado por categoría, buscar por nombre o color y filtrar.
 - Pedir un look como se habla: “quiero usar algo verde para salir”, “un jean para la facu”, “hace frío”.
 - La app propone 3 combinaciones completas y explica por qué combinan.
@@ -16,7 +17,7 @@ App web instalable (PWA) para gestionar el guardarropa y pedir looks con la ropa
 
 ## Privacidad
 
-Las fotos y los datos se guardan **solo en el dispositivo**, en IndexedDB. No hay cuentas, servidores ni analítica.
+Las fotos y los datos se guardan **solo en el dispositivo**, en IndexedDB. No hay cuentas, servidores ni analítica. El modelo de reconocimiento corre localmente; la foto nunca se sube.
 
 ## Instalación en el celular
 
