@@ -1,0 +1,268 @@
+{
+  "checks": [
+    {
+      "name": "se cargaron 26 prendas",
+      "ok": true,
+      "value": 26,
+      "expected": 26
+    },
+    {
+      "name": "no hay desborde horizontal",
+      "ok": true,
+      "value": 430,
+      "expected": 430
+    },
+    {
+      "name": "el buscador respeta los márgenes",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "stats sin categorías",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el placard arranca agrupado por categoría",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "“verde” filtra el placard",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "propone 3 looks",
+      "ok": true,
+      "value": 3,
+      "expected": 3
+    },
+    {
+      "name": "el look verde usa la remera verde",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la razón no dice “Rosa es el que manda”",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "los looks proponen conjuntos completos",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la pantalla se desplaza a los resultados",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "“Ver otras” cambia la propuesta",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el botón queda como guardado",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "“Me lo pongo” confirma",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "los looks quedan guardados",
+      "ok": true,
+      "value": 2,
+      "expected": 2
+    },
+    {
+      "name": "no duplica el look al usarlo",
+      "ok": true,
+      "value": 2,
+      "expected": 2
+    },
+    {
+      "name": "abre la ficha de la prenda",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la ficha no dice “1 semanas”",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "arma un look a partir de la prenda",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el look incluye la prenda elegida",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "abre la pantalla de alta",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "no deja guardar sin color",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la foto se procesa y muestra la paleta",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "detecta el color verde",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el color se muestra como detectado",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la paleta completa queda escondida",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "pide permiso para bajar el modelo de IA",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la IA elige la categoría sola",
+      "ok": true,
+      "value": "remera",
+      "expected": "remera"
+    },
+    {
+      "name": "la IA avisa lo que detectó",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "autocompleta el nombre con categoría y color",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "temporada y ocasión se eligen solas",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la foto se muestra desde un blob local",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "“Cambiar” muestra la paleta",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la prenda nueva aparece en el placard",
+      "ok": true,
+      "value": 27,
+      "expected": 27
+    },
+    {
+      "name": "la prenda nueva está agrupada con las remeras",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la prenda nueva tiene foto",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el service worker está activo",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el manifest no tiene errores",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la app es instalable",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "la app abre sin internet",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "conserva las prendas sin internet",
+      "ok": true,
+      "value": 27,
+      "expected": 27
+    },
+    {
+      "name": "conserva las fotos sin internet",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "el backup reemplaza el placard",
+      "ok": true,
+      "value": 1,
+      "expected": 1
+    },
+    {
+      "name": "importa el nombre de la prenda",
+      "ok": true,
+      "value": "Campera de jean",
+      "expected": "Campera de jean"
+    },
+    {
+      "name": "importa los looks",
+      "ok": true,
+      "value": 1,
+      "expected": 1
+    },
+    {
+      "name": "el placard queda vacío",
+      "ok": true,
+      "value": 0,
+      "expected": 0
+    },
+    {
+      "name": "se ve el estado vacío",
+      "ok": true,
+      "value": true
+    },
+    {
+      "name": "desaparece el buscador vacío",
+      "ok": true,
+      "value": true
+    }
+  ],
+  "logs": [
+    "[log] Failed to load resource: the server responded with a status of 404 ()"
+  ],
+  "measure": {
+    "innerWidth": 430,
+    "scrollWidth": 430,
+    "search": {
+      "x": 18,
+      "right": 412
+    },
+    "stats": "26 prendas · 1 look"
+  }
+}
